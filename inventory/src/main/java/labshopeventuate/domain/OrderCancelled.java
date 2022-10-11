@@ -1,12 +1,13 @@
 package labshopeventuate.domain;
 
 import labshopeventuate.domain.*;
-import labshopeventuate.infra.AbstractEvent;
 import lombok.*;
 import java.util.*;
+
+import io.eventuate.tram.events.common.DomainEvent;
 @Data
 @ToString
-public class OrderCancelled extends AbstractEvent {
+public class OrderCancelled implements DomainEvent {
 
     private Long id;
     private String productId;
