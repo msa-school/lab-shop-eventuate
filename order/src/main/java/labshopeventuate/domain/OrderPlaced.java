@@ -1,13 +1,13 @@
 package labshopeventuate.domain;
 
 import labshopeventuate.domain.*;
-import labshopeventuate.infra.AbstractEvent;
+//import labshopeventuate.infra.AbstractEvent;
 import java.util.*;
 import lombok.*;
 
 @Data
 @ToString
-public class OrderPlaced extends AbstractEvent {
+public class OrderPlaced {//extends AbstractEvent {
 
     private Long id;
     private String productId;
@@ -18,7 +18,7 @@ public class OrderPlaced extends AbstractEvent {
     private String address;
 
     public OrderPlaced(Order aggregate){
-        super(aggregate);
+       // super(aggregate);
     }
     public OrderPlaced(){
         super();

@@ -17,57 +17,25 @@ public class Order  {
     
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
-    
-    
-    
-    
-    
     private Long id;
-    
-    
-    
-    
     
     private String productId;
     
-    
-    
-    
-    
     private Integer qty;
-    
-    
-    
-    
     
     private String customerId;
     
-    
-    
-    
-    
     private Double amount;
     
-    
-    
-    
-    
     private String status;
-    
-    
-    
-    
     
     private String address;
 
     @PostPersist
     public void onPostPersist(){
-
-
         OrderPlaced orderPlaced = new OrderPlaced(this);
-        orderPlaced.publishAfterCommit();
-
     }
+
     @PrePersist
     public void onPrePersist(){
         // Get request from Inventory
@@ -79,9 +47,7 @@ public class Order  {
     @PreRemove
     public void onPreRemove(){
 
-
         OrderCancelled orderCancelled = new OrderCancelled(this);
-        orderCancelled.publishAfterCommit();
 
     }
 
