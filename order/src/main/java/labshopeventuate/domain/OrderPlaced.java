@@ -22,7 +22,7 @@ public class OrderPlaced implements DomainEvent{//extends AbstractEvent {
     private String address;
 
     public OrderPlaced(Order aggregate){
-       BeanUtils.copyProperties(aggregate, aggregate);
+       BeanUtils.copyProperties(aggregate, this);
     }
     public OrderPlaced(){
         super();

@@ -27,7 +27,8 @@ public class PolicyHandler{
         System.out.println("\n\n##### listener DecreaseStock : " + event + "\n\n");
 
         // Sample Logic //
-        Inventory.decreaseStock(event);
+        if(event.getProductId()!=null) 
+            Inventory.decreaseStock(event);
         
     }
 
