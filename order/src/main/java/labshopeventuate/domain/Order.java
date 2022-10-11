@@ -4,8 +4,13 @@ import labshopeventuate.domain.OrderPlaced;
 import labshopeventuate.domain.OrderCancelled;
 import labshopeventuate.OrderApplication;
 import javax.persistence.*;
+
+import io.eventuate.tram.events.publisher.DomainEventPublisher;
+
 import java.util.List;
 import lombok.Data;
+
+import java.util.Collections;
 import java.util.Date;
 
 @Entity
@@ -34,6 +39,9 @@ public class Order  {
     @PostPersist
     public void onPostPersist(){
         OrderPlaced orderPlaced = new OrderPlaced(this);
+
+        DomainEventPublisher publisher = OrderApplication.applicationContext.getBean(DomainEventPublisher.class);
+        publisher.publish(getClass(), getId(), Collections.singletonList(orderPlaced));
     }
 
     @PrePersist
