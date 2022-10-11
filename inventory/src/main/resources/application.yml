@@ -8,65 +8,32 @@ spring:
 spring:
   profiles: default
   jpa:
+    generate-ddl: true
     properties:
       hibernate:
         show_sql: true
         format_sql: true
-  cloud:
-    stream:
-      kafka:
-        binder:
-          brokers: localhost:9092
-        streams:
-          binder:
-            configuration:
-              default:
-                key:
-                  serde: org.apache.kafka.common.serialization.Serdes$StringSerde
-                value:
-                  serde: org.apache.kafka.common.serialization.Serdes$StringSerde
-      bindings:
-        event-in:
-          group: inventory
-          destination: labshopeventuate
-          contentType: application/json
-        event-out:
-          destination: labshopeventuate
-          contentType: application/json
+
+  datasource:
+    url: jdbc:mysql://${DOCKER_HOST_IP:localhost}/eventuate
+    username: mysqluser
+    password: mysqlpw
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+
+eventuatelocal:
+  kafka:
+    bootstrap.servers: ${DOCKER_HOST_IP:localhost}:9092
+
+
+cdc:
+  service:
+    url: http://localhost:8099
 
 logging:
   level:
     org.hibernate.type: trace
     org.springframework.cloud: debug
 
-
 server:
   port: 8082
-
----
-
-spring:
-  profiles: docker
-  cloud:
-    stream:
-      kafka:
-        binder:
-          brokers: my-kafka:9092
-        streams:
-          binder:
-            configuration:
-              default:
-                key:
-                  serde: org.apache.kafka.common.serialization.Serdes$StringSerde
-                value:
-                  serde: org.apache.kafka.common.serialization.Serdes$StringSerde
-      bindings:
-        event-in:
-          group: inventory
-          destination: labshopeventuate
-          contentType: application/json
-        event-out:
-          destination: labshopeventuate
-          contentType: application/json
-
-
