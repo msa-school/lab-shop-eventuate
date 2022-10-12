@@ -26,7 +26,6 @@ public class PolicyHandler{
         OrderPlaced event = orderPlacedEvent.getEvent();
         System.out.println("\n\n##### listener DecreaseStock : " + event + "\n\n");
 
-        // Sample Logic //
         if(event.getProductId()!=null) 
             Inventory.decreaseStock(event);
         

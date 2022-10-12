@@ -1,4 +1,4 @@
-# Event-driven microservice choreography with Eventuate + Spring Data REST
+# Microservice Choreography with Eventuate + Spring Data REST
 
 ## How to run
 
@@ -68,7 +68,7 @@ you can see:
 ```
 
 
-Possible Errors:
+## Possible Errors:
 
 - org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'domainEventDispatcher' defined in labshopeventuate.InventoryApplication: Unsatisfied dependency expressed through method 'domainEventDispatcher' parameter 0; nested exception is org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'domainEventDispatcherFactory' defined in class path resource [io/eventuate/tram/spring/events/subscriber/TramEventSubscriberConfiguration.class]: Unsatisfied dependency expressed through method 'domainEventDispatcherFactory' parameter 0; nested exception is org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'messageConsumer' defined in class path resource [io/eventuate/tram/spring/consumer/common/TramConsumerCommonConfiguration.class]: Unsatisfied dependency expressed through method 'messageConsumer' parameter 0; nested exception is org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'messageConsumerImplementation' defined in class path resource [io/eventuate/tram/spring/consumer/kafka/EventuateTramKafkaMessageConsumerConfiguration.class]: Unsatisfied dependency expressed through method 'messageConsumerImplementation' parameter 0; nested exception is org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'messageConsumerKafka' defined in class path reso
 
@@ -93,3 +93,79 @@ Possible Errors:
 {"binlogFilename":"mysql-bin.000003","offset":154631,"rowsToSkip":0}
 {"binlogFilename":"mysql-bin.000003","offset":154815,"rowsToSkip":0}
 ```
+
+
+
+## Implementation Details
+
+- "Order::onPostPersist" publishes events with DomainEventPublisher service that is provided by Eventuate:
+```
+    @PostPersist
+    public void onPostPersist(){
+        OrderPlaced orderPlaced = new OrderPlaced(this);
+
+        DomainEventPublisher publisher = OrderApplication.applicationContext.getBean(DomainEventPublisher.class);
+        publisher.publish(getClass(), getId(), Collections.singletonList(orderPlaced));
+    }
+
+```
+
+- As stated in "application.yaml", Eventuate Tram uses the configuration to connect to the database and for sending message and the Eventuate CDC pick up the message from the db log and send events to the kafka:
+```
+spring:
+  profiles: default
+  jpa:
+    generate-ddl: true
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+
+  datasource:
+    url: jdbc:mysql://${DOCKER_HOST_IP:localhost}/eventuate
+    username: mysqluser
+    password: mysqlpw
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+
+eventuatelocal:
+  kafka:
+    bootstrap.servers: ${DOCKER_HOST_IP:localhost}:9092
+
+
+cdc:
+  service:
+    url: http://localhost:8099
+
+```
+
+- In inventory service, the events are subscribed by the EventDispatcher:
+```
+    # InventoryApplication.java
+
+    @Bean
+    public DomainEventDispatcher domainEventDispatcher(DomainEventDispatcherFactory domainEventDispatcherFactory) {
+      return domainEventDispatcherFactory.make("orderServiceEvents", DomainEventHandlersBuilder
+      .forAggregateType("labshopeventuate.domain.Order")
+      .onEvent(OrderPlaced.class, PolicyHandler::wheneverOrderPlaced_DecreaseStock)
+      //.onEvent(OrderCancelledEvent.class, this::handleOrderCancelledEvent)
+      .build());
+    }
+```
+
+- EventDispatcher calls PolicyHandler and the Policyhandler invokes the aggregate's port method (decreaseStock):
+```
+    public static void wheneverOrderPlaced_DecreaseStock(DomainEventEnvelope<OrderPlaced> orderPlacedEvent){
+
+        OrderPlaced event = orderPlacedEvent.getEvent();
+        System.out.println("\n\n##### listener DecreaseStock : " + event + "\n\n");
+
+        if(event.getProductId()!=null) 
+            Inventory.decreaseStock(event);
+        
+    }
+```
+
+## References
+- Eventuate Official Doc: https://eventuate.io/abouteventuatetram.html
+- Orchestration version: https://github.com/jinyoung/lab-shop-eventuate-orchestration
