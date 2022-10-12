@@ -1,3 +1,38 @@
+# Event-driven microservice choreography with Eventuate + Spring Data REST
+
+## How to run
+
+- firstly install and run infrastructure including the kafka, mysql, eventuate cdc
+```
+cd kafka
+docker-compose up
+```
+
+- run each microservice
+```
+cd order
+mvn spring-boot:run
+
+#another terminal
+cd inventory
+mvn spring-boot:run
+```
+
+- test the service:
+
+register a product with stock 10 and create an order for the product:
+```
+http :8082/inventories id=1 stock=10
+http :8081/orders productId=1 qty=5
+```
+
+check the stock remaining:
+```
+http :8082/inventories/1    #stock must be 5
+```
+
+- check the database:
+
 ```
 docker exec -it kafka-mysql-1 /bin/bash
 
@@ -15,7 +50,7 @@ you can see:
 +-----------------------------------+-------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+---------+-----------+-------------------+---------------+
 ```
 
-you can find the kafka log by hitting:
+you can find the kafka log:
 
 ```
 docker exec -it kafka-kafka-1 /bin/bash
