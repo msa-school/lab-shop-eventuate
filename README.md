@@ -100,8 +100,8 @@ you can see:
 
 - "Order::onPostPersist" publishes events with DomainEventPublisher service that is provided by Eventuate:
 ```
-    @PostPersist
-    public void onPostPersist(){
+    @PostPersist  // will be invoked after saving Order aggreagte
+    public void onPostPersist(){  
         OrderPlaced orderPlaced = new OrderPlaced(this);
 
         DomainEventPublisher publisher = OrderApplication.applicationContext.getBean(DomainEventPublisher.class);
@@ -110,7 +110,7 @@ you can see:
 
 ```
 
-- As stated in "application.yaml", Eventuate Tram uses the configuration to connect to the database and for sending message and the Eventuate CDC pick up the message from the db log and send events to the kafka:
+- As stated in "application.yaml", Eventuate Tram uses the configuration to connect to the database and store messages to the table "message" and the Eventuate CDC pick up the message from the db log and send events to the kafka:
 ```
 spring:
   profiles: default
