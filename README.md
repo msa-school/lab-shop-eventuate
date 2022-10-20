@@ -1,5 +1,7 @@
 # Microservice Choreography with Eventuate + Spring Data REST
 
+https://gitpod.io/#https://github.com/msa-school/lab-shop-eventuate
+
 ## How to run
 
 - firstly install and run infrastructure including the kafka, mysql, eventuate cdc
