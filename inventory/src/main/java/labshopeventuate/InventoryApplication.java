@@ -23,13 +23,13 @@ public class InventoryApplication {
         applicationContext = SpringApplication.run(InventoryApplication.class, args);
     }
 
-    @Bean
-    public DomainEventDispatcher domainEventDispatcher(DomainEventDispatcherFactory domainEventDispatcherFactory) {
-      return domainEventDispatcherFactory.make("orderServiceEvents", DomainEventHandlersBuilder
-      .forAggregateType("labshopeventuate.domain.Order")
-      .onEvent(OrderPlaced.class, PolicyHandler::wheneverOrderPlaced_DecreaseStock)
-      //.onEvent(OrderCancelledEvent.class, this::handleOrderCancelledEvent)
-      .build());
-    }
+    // @Bean
+    // public DomainEventDispatcher domainEventDispatcher(DomainEventDispatcherFactory domainEventDispatcherFactory) {
+    //   return domainEventDispatcherFactory.make("orderServiceEvents", DomainEventHandlersBuilder
+    //   .forAggregateType("labshopeventuate.domain.Order")
+    //   .onEvent(OrderPlaced.class, PolicyHandler::wheneverOrderPlaced_DecreaseStock)
+    //   //.onEvent(OrderCancelledEvent.class, this::handleOrderCancelledEvent)
+    //   .build());
+    // }
   
 }

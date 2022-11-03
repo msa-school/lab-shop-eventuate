@@ -8,17 +8,27 @@ import javax.transaction.Transactional;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.eventuate.tram.events.subscriber.DomainEventDispatcher;
+import io.eventuate.tram.events.subscriber.DomainEventDispatcherFactory;
 import io.eventuate.tram.events.subscriber.DomainEventEnvelope;
+import io.eventuate.tram.events.subscriber.DomainEventHandlersBuilder;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import labshopeventuate.domain.*;
 
 
-
+@Configuration
 public class PolicyHandler{    
     
-    // @StreamListener(value=KafkaProcessor.INPUT, condition="headers['type']=='OrderPlaced'")
+    @Bean
+    public DomainEventDispatcher domainEventDispatcher(DomainEventDispatcherFactory domainEventDispatcherFactory) {
+      return domainEventDispatcherFactory.make("orderServiceEvents", DomainEventHandlersBuilder
+      .forAggregateType("labshopeventuate.domain.Order")
+      .onEvent(OrderPlaced.class, PolicyHandler::wheneverOrderPlaced_DecreaseStock)
+
+      .build());
+    }
 
 
     public static void wheneverOrderPlaced_DecreaseStock(DomainEventEnvelope<OrderPlaced> orderPlacedEvent){
@@ -30,23 +40,6 @@ public class PolicyHandler{
             Inventory.decreaseStock(event);
         
     }
-
-    // @StreamListener(value=KafkaProcessor.INPUT, condition="headers['type']=='OrderCancelled'")
-    // public void wheneverOrderCancelled_IncreaseStock(@Payload OrderCancelled orderCancelled){
-
-    //     OrderCancelled event = orderCancelled;
-    //     System.out.println("\n\n##### listener IncreaseStock : " + orderCancelled + "\n\n");
-
-
-        
-
-    //     // Sample Logic //
-    //     Inventory.increaseStock(event);
-        
-
-        
-
-    // }
 
 }
 
